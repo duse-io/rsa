@@ -3,6 +3,7 @@
 
 library rsa.test;
 
+import 'dart:typed_data' show Uint8List;
 import 'package:rsa/rsa.dart';
 import 'package:unittest/unittest.dart';
 
@@ -27,17 +28,12 @@ xJQRWFx0dT7MgQIgaH+Ccvfs/hFWnoVf8aF+w589L+BFLgyfeU33KB7KJgECIQCS
   test("en- and decryption", () {
     var public = KeyPair.parsePem(pubkey);
     var private = KeyPair.parsePem(privkey);
-    var n = "test";
     
-    var encr = public.encrypt(n);
-    
-    var utf = binaryToUtf(encr);
-    var again = utfToBinary(utf);
-    
-    expect(again, equals(encr));
-    
+    var encr = public.encrypt("test");
     var decr = private.decrypt(encr);
     
-    expect(n, equals(decr));
+    print(encode(encr));
+    
+    expect(new String.fromCharCodes(decr), equals("test"));
   });
 }

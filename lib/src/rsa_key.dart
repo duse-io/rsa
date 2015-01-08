@@ -1,8 +1,11 @@
 library rsa.key;
 
 import 'dart:math' show Point;
+
 import 'package:bignum/bignum.dart';
 import 'package:rsa_pkcs/rsa_pkcs.dart' show RSAPublicKey, RSAPrivateKey;
+
+import 'rsa_math.dart' show log256;
 
 class Key {
   final int modulus;
@@ -23,6 +26,8 @@ class Key {
   int get d => exponent;
   
   bool get valid => true; // TODO: Validity checking
+  
+  int get modulusBytesize => log256(modulus).ceil();
   
   Point toPoint() => new Point(modulus, exponent);
   

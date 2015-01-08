@@ -1,8 +1,12 @@
 library rsa.keypar;
 
-import 'package:rsa/src/rsa_key.dart';
-import 'package:rsa/src/rsa_math.dart' as Math;
-import 'package:rsa/src/rsa_pkcs1.dart' as PKCS1;
+import 'dart:typed_data' show Uint8List;
+
+import 'rsa_key.dart';
+import 'rsa_math.dart' as Math;
+import 'rsa_pkcs1.dart' as PKCS1;
+import 'rsa_padding.dart';
+
 import 'package:rsa_pkcs/rsa_pkcs.dart' show RSAPKCSParser;
 
 
@@ -41,34 +45,48 @@ class KeyPair {
   int get bitsize => Math.log2(modulus).ceil();
   int get size => bitsize;
   
-  encrypt(plainText) {
+  encrypt(plainText, {Padding padding: PKCS1_PADDING}) {
     if (plainText is int) return _encryptInteger(plainText);
     if (plainText is String)
-      return PKCS1.i2osp(_encryptInteger(PKCS1.os2ip(plainText)));
+      plainText = new Uint8List.fromList(plainText.codeUnits);
+    if (plainText is Uint8List) {
+      if (null != padding) plainText = padding.apply(plainText, bytesize);
+      return PKCS1.i2osp(_encryptInteger(PKCS1.os2ip(plainText)),
+          bytesize);
+    }
     throw new ArgumentError.value(plainText);
   }
   
-  decrypt(cipherText) {
+  decrypt(cipherText, {Padding padding: PKCS1_PADDING}) {
     if (cipherText is int) return _decryptInteger(cipherText);
     if (cipherText is String)
-      return PKCS1.i2osp(_decryptInteger(PKCS1.os2ip(cipherText)));
+      cipherText = new Uint8List.fromList(cipherText.codeUnits);
+    if (cipherText is Uint8List) {
+      cipherText = PKCS1.i2osp(_decryptInteger(PKCS1.os2ip(cipherText)),
+          bytesize);
+      if (null != padding) cipherText = padding.strip(cipherText);
+      return cipherText;
+    }
     throw new ArgumentError.value(cipherText);
   }
   
   sign(plainText) {
     if (plainText is int) return _signInteger(plainText);
     if (plainText is String)
-      return PKCS1.i2osp(_signInteger(PKCS1.os2ip(plainText)));
+      plainText = new Uint8List.fromList(plainText.codeUnits);
+    if (plainText is Uint8List)
+      return PKCS1.i2osp(_signInteger(PKCS1.os2ip(plainText)), 
+          bytesize);
     throw new ArgumentError.value(plainText);
   }
   
   bool verify(signature, plainText) {
-    if (signature is! int && signature is! String)
+    if (signature is! int && signature is! Uint8List)
       throw new ArgumentError.value(signature);
-    if (plainText is! int && plainText is! String)
+    if (plainText is! int && plainText is! Uint8List)
       throw new ArgumentError.value(plainText);
-    if (signature is String) signature = PKCS1.os2ip(signature);
-    if (plainText is String) plainText = PKCS1.os2ip(plainText);
+    if (signature is Uint8List) signature = PKCS1.os2ip(signature);
+    if (plainText is Uint8List) plainText = PKCS1.os2ip(plainText);
     return _verifyInteger(signature, plainText);
   }
   

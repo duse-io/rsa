@@ -1,11 +1,12 @@
 library rsa.pkcs1;
 
-import 'dart:math' show pow;
-import 'dart:convert' show UTF8, ASCII;
-import 'package:rsa/src/rsa_key.dart';
-import 'package:rsa/src/rsa_math.dart' as Math;
+import 'dart:math' show pow, max;
+import 'dart:typed_data' show Uint8List;
 
-String i2osp(int x, [int len]) {
+import 'rsa_key.dart';
+import 'rsa_math.dart' as Math;
+
+Uint8List i2osp(int x, int len) {
   if (null != len && x >= pow(256, len))
     throw new ArgumentError("integer too large");
   
@@ -17,14 +18,14 @@ String i2osp(int x, [int len]) {
     buffer.add(b);
   }
   
-  var s = new String.fromCharCodes(buffer.reversed);
-  if (null != len) s = s.padLeft(len, "\0");
-  return s;
+  var difference = max(0, len - buffer.length);
+  buffer.addAll(new List.filled(difference, 0));
+  buffer = buffer.reversed.toList();
+  return new Uint8List.fromList(buffer);
 }
 
-int os2ip(String x) {
-  var bytes = x.codeUnits;
-  return bytes.fold(0, (int n, b) => (n << 8) + b);
+int os2ip(Uint8List x) {
+  return x.fold(0, (int n, b) => (n << 8) + b);
 }
 
 int rsaep(Key k, int m) {
