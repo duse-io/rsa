@@ -6,6 +6,7 @@ import 'rsa_key.dart';
 import 'rsa_math.dart' as Math;
 import 'rsa_pkcs1.dart' as PKCS1;
 import 'rsa_padding.dart';
+import 'rsa_tools.dart';
 
 import 'package:rsa_pkcs/rsa_pkcs.dart' show RSAPKCSParser;
 
@@ -47,27 +48,35 @@ class KeyPair {
   
   encrypt(plainText, {Padding padding: PKCS1_PADDING}) {
     if (plainText is int) return _encryptInteger(plainText);
-    if (plainText is String)
+    if (plainText is String) {
       plainText = new Uint8List.fromList(plainText.codeUnits);
-    if (plainText is Uint8List) {
-      if (null != padding) plainText = padding.apply(plainText, bytesize);
-      return PKCS1.i2osp(_encryptInteger(PKCS1.os2ip(plainText)),
-          bytesize);
+      return encode(_encrypt(plainText, padding));
     }
+    if (plainText is Uint8List) return _encrypt(plainText, padding);
     throw new ArgumentError.value(plainText);
+  }
+  
+  Uint8List _encrypt(Uint8List plainText, padding) {
+    if (null != padding) plainText = padding.apply(plainText, bytesize);
+    return PKCS1.i2osp(_encryptInteger(PKCS1.os2ip(plainText)),
+        bytesize);
   }
   
   decrypt(cipherText, {Padding padding: PKCS1_PADDING}) {
     if (cipherText is int) return _decryptInteger(cipherText);
-    if (cipherText is String)
-      cipherText = new Uint8List.fromList(cipherText.codeUnits);
-    if (cipherText is Uint8List) {
-      cipherText = PKCS1.i2osp(_decryptInteger(PKCS1.os2ip(cipherText)),
-          bytesize);
-      if (null != padding) cipherText = padding.strip(cipherText);
-      return cipherText;
+    if (cipherText is String) {
+      cipherText = decode(cipherText);
+      return new String.fromCharCodes(_decrypt(cipherText, padding));
     }
+    if (cipherText is Uint8List) return _decrypt(cipherText, padding);
     throw new ArgumentError.value(cipherText);
+  }
+  
+  Uint8List _decrypt(Uint8List cipherText, padding) {
+    cipherText = PKCS1.i2osp(_decryptInteger(PKCS1.os2ip(cipherText)),
+        bytesize);
+    if (null != padding) cipherText = padding.strip(cipherText);
+    return cipherText;
   }
   
   sign(plainText) {

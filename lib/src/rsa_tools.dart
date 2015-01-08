@@ -10,8 +10,8 @@ String encode(Uint8List cipher) {
   return new String.fromCharCodes(utf);
 }
 
-String decode(String cipher) {
+Uint8List decode(String cipher) {
   var base64 = UTF8.decode(cipher.codeUnits);
   var bytes = CryptoUtils.base64StringToBytes(base64);
-  return new String.fromCharCodes(bytes);
+  return new Uint8List.fromList(bytes);
 }

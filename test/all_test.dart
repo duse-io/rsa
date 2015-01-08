@@ -32,8 +32,6 @@ xJQRWFx0dT7MgQIgaH+Ccvfs/hFWnoVf8aF+w589L+BFLgyfeU33KB7KJgECIQCS
     var encr = public.encrypt("test");
     var decr = private.decrypt(encr);
     
-    print(encode(encr));
-    
-    expect(new String.fromCharCodes(decr), equals("test"));
+    expect(decr, equals("test"));
   });
 }
