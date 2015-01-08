@@ -1,6 +1,6 @@
 name: rsa
 version: 0.0.1
-description: A library useful for applications or for sharing on pub.dartlang.org.
+description: A library providing a simple to use RSA interface
 dependencies:
   asn1lib: ">=0.3.3 <0.4.0"
   bignum: ">=0.0.6 <0.1.0"
