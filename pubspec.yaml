@@ -2,10 +2,9 @@ name: rsa
 version: 0.0.1
 description: A library useful for applications or for sharing on pub.dartlang.org.
 dependencies:
-  asn1lib: any
-  bignum: any
-  rsa_pkcs: any
-  u_til: any
-  crypto: any
+  asn1lib: ">=0.3.3 <0.4.0"
+  bignum: ">=0.0.6 <0.1.0"
+  rsa_pkcs: ">=0.1.1 <0.2.0"
+  crypto: ">=0.9.0 <0.10.0"
 dev_dependencies:
-  unittest: any
+  unittest: ">=0.11.4 <0.12.0"
