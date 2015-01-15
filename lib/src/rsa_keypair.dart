@@ -7,6 +7,7 @@ import 'rsa_math.dart' as Math;
 import 'rsa_pkcs1.dart' as PKCS1;
 import 'rsa_padding.dart';
 import 'rsa_tools.dart';
+import 'rsa_hashing.dart';
 
 import 'package:rsa_pkcs/rsa_pkcs.dart' show RSAPKCSParser;
 
@@ -47,13 +48,28 @@ class KeyPair {
   int get size => bitsize;
   
   encrypt(plainText, {Padding padding: PKCS1_PADDING}) {
-    if (plainText is int) return _encryptInteger(plainText);
     if (plainText is String) {
       plainText = new Uint8List.fromList(plainText.codeUnits);
-      return encode(_encrypt(plainText, padding));
+      return DSC.encode(_encrypt(plainText, padding));
     }
     if (plainText is Uint8List) return _encrypt(plainText, padding);
     throw new ArgumentError.value(plainText);
+  }
+  
+  PublicEncryptionResult publicEncrypt(plainText,
+    {Padding padding: PKCS1_PADDING, HashFunction hashFunction: SHA256}) {
+    var encrypted = encrypt(plainText);
+    var signature = sign(encrypted);
+    return new PublicEncryptionResult(encrypted, signature);
+  }
+  
+  privateDecrypt(PublicEncryptionResult result,
+    {Padding padding: PKCS1_PADDING, HashFunction hashFunction: SHA256}) {
+    if (verify(result.signature, result.cipher,
+        hashFunction: hashFunction)) {
+      return decrypt(result.cipher, padding: padding);
+    }
+    throw new ArgumentError("Signature could not be verified");
   }
   
   Uint8List _encrypt(Uint8List plainText, padding) {
@@ -63,9 +79,8 @@ class KeyPair {
   }
   
   decrypt(cipherText, {Padding padding: PKCS1_PADDING}) {
-    if (cipherText is int) return _decryptInteger(cipherText);
     if (cipherText is String) {
-      cipherText = decode(cipherText);
+      cipherText = DSC.decode(cipherText);
       return new String.fromCharCodes(_decrypt(cipherText, padding));
     }
     if (cipherText is Uint8List) return _decrypt(cipherText, padding);
@@ -79,24 +94,61 @@ class KeyPair {
     return cipherText;
   }
   
-  sign(plainText) {
-    if (plainText is int) return _signInteger(plainText);
-    if (plainText is String)
-      plainText = new Uint8List.fromList(plainText.codeUnits);
-    if (plainText is Uint8List)
-      return PKCS1.i2osp(_signInteger(PKCS1.os2ip(plainText)), 
-          bytesize);
-    throw new ArgumentError.value(plainText);
+  sign(message, {HashFunction hashFunction: SHA256}) {
+    if (message is String) {
+      message = new Uint8List.fromList(message.codeUnits);
+      var signature = _sign(message, hashFunction: hashFunction);
+      return DSC.encode(signature);
+    }
+    if (message is Uint8List) return _sign(message,
+        hashFunction: hashFunction);
+    throw new ArgumentError.value(message);
   }
   
-  bool verify(signature, plainText) {
-    if (signature is! int && signature is! Uint8List)
+  Uint8List _sign(Uint8List message,
+                  {HashFunction hashFunction: SHA256}) {
+    var em = emsaEncode(message, bytesize,
+        hashFunction: hashFunction);
+    var m = PKCS1.os2ip(em);
+    var s = PKCS1.rsasp1(privateKey, m);
+    var signature = PKCS1.i2osp(s, bytesize);
+    return signature;
+  }
+  
+  bool verify(signature, message,
+              {HashFunction hashFunction: SHA256}) {
+    if (signature is String)
+      signature = DSC.decode(signature);
+    if (message is String)
+      message = DSC.decode(message);
+    if (signature is! Uint8List)
       throw new ArgumentError.value(signature);
-    if (plainText is! int && plainText is! Uint8List)
-      throw new ArgumentError.value(plainText);
-    if (signature is Uint8List) signature = PKCS1.os2ip(signature);
-    if (plainText is Uint8List) plainText = PKCS1.os2ip(plainText);
-    return _verifyInteger(signature, plainText);
+    if (message is! Uint8List)
+      throw new ArgumentError.value(message);
+    return _verify(signature, message, hashFunction: hashFunction);
+  }
+  
+  bool _verify(Uint8List signature, Uint8List message,
+               {HashFunction hashFunction: SHA256}) {
+    if (signature.length != bytesize)
+      throw new ArgumentError.value(signature);
+    var s = PKCS1.os2ip(signature);
+    var m = PKCS1.rsavp1(publicKey, s);
+    var em1 = PKCS1.i2osp(m, bytesize);
+    var em2 = emsaEncode(message, bytesize);
+    return equalLists(em1, em2);
+  }
+  
+  bool equalLists(List first, List second) {
+    if (first.length != second.length) return false;
+    for (int i = 0; i < first.length; i++) {
+      if (first[i] != second[i]) {
+        print(first[i]);
+        print(second[i]);
+        return false;
+      }
+    }
+    return true;
   }
   
   int _encryptInteger(int plainText) => PKCS1.rsaep(publicKey, plainText);
@@ -104,7 +156,4 @@ class KeyPair {
   int _decryptInteger(int cipherText) => PKCS1.rsadp(privateKey, cipherText);
   
   int _signInteger(int plainText) => PKCS1.rsasp1(privateKey, plainText);
-  
-  bool _verifyInteger(int signature, int plainText) =>
-      PKCS1.rsavp1(publicKey, signature) == plainText;
 }
