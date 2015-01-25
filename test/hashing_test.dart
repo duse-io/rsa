@@ -2,6 +2,7 @@ library rsa.test.hashing;
 
 import 'dart:typed_data' show Uint8List;
 
+import 'package:crypto/crypto.dart';
 import 'package:rsa/rsa.dart';
 import 'package:unittest/unittest.dart';
 

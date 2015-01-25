@@ -96,7 +96,7 @@ class KeyPair {
   
   sign(message, {HashFunction hashFunction: SHA256}) {
     if (message is String) {
-      message = new Uint8List.fromList(message.codeUnits);
+      message = DSC.decode(message);
       var signature = _sign(message, hashFunction: hashFunction);
       return DSC.encode(signature);
     }
@@ -143,8 +143,6 @@ class KeyPair {
     if (first.length != second.length) return false;
     for (int i = 0; i < first.length; i++) {
       if (first[i] != second[i]) {
-        print(first[i]);
-        print(second[i]);
         return false;
       }
     }

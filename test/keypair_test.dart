@@ -3,10 +3,13 @@ library test.rsa.keypair;
 import 'package:rsa/rsa.dart';
 import 'package:unittest/unittest.dart';
 
-keyPairTest() {
+keyPairTest(KeyPair keyPair) {
   group("RSA KeyPair", () {
-    var publicKey = new Key(3233, 17);
-    var privateKey = new Key(3233, 2753);
-    var keyPair = new KeyPair(privateKey, publicKey);
+    test("Integration: Public Encrypt + Decrypt", () {
+      var encrypted = keyPair.publicEncrypt("This is a secret");
+      var decrypt = keyPair.privateDecrypt(encrypted);
+      
+      expect(decrypt, equals("This is a secret"));
+    });
   });
 }

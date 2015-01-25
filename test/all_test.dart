@@ -3,18 +3,13 @@
 
 library test.rsa.all;
 
-import 'dart:typed_data' show Uint8List;
 import 'package:rsa/rsa.dart';
-import 'package:unittest/unittest.dart';
 
 import 'tools_test.dart';
 import 'pkcs1_test.dart';
+import 'keypair_test.dart';
 
 main() {
-  toolsTest();
-  pkcs1Test();
-  
-  
   var pubkey =
     """-----BEGIN PUBLIC KEY-----
 MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBANg8PKyzt2ehAg+UfKIBIBC6SU2GvaHv
@@ -31,15 +26,11 @@ xJQRWFx0dT7MgQIgaH+Ccvfs/hFWnoVf8aF+w589L+BFLgyfeU33KB7KJgECIQCS
 6JXBqbe3BftpS7otUsuZAdRijbeU60OGGwhsVX0pEw==
 -----END RSA PRIVATE KEY-----""";
   
+  var publicKey = KeyPair.parsePem(pubkey).publicKey;
+  var privateKey = KeyPair.parsePem(privkey).privateKey;
+  var pair = new KeyPair(privateKey, publicKey);
   
-  test("en- and decryption", () {
-    var publicKey = KeyPair.parsePem(pubkey).publicKey;
-    var privateKey = KeyPair.parsePem(privkey).privateKey;
-    var pair = new KeyPair(privateKey, publicKey);
-    
-    var encryptionResult = pair.publicEncrypt("test");
-    //var decrypted = pair.privateDecrypt(encryptionResult);
-   
-    //expect(decrypted, equals("test"));
-  });
+  toolsTest();
+  pkcs1Test();
+  keyPairTest(pair);
 }
