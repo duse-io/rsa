@@ -1,15 +1,16 @@
 library rsa.keypar;
 
 import 'dart:typed_data' show Uint8List;
+import 'dart:convert' show UTF8;
 
 import 'rsa_key.dart';
-import 'rsa_math.dart' as Math;
 import 'rsa_pkcs1.dart' as PKCS1;
 import 'rsa_padding.dart';
 import 'rsa_tools.dart';
 import 'rsa_hashing.dart';
 
 import 'package:rsa_pkcs/rsa_pkcs.dart' show RSAPKCSParser;
+import 'package:bignum/bignum.dart';
 
 
 class KeyPair {
@@ -36,20 +37,20 @@ class KeyPair {
   bool get hasPrivateKey => null != privateKey;
   bool get hasPublicKey => null != publicKey;
   
-  int get modulus =>
+  BigInteger get modulus =>
       null != privateKey ? privateKey.modulus : publicKey.modulus;
-  int get n => modulus;
+  BigInteger get n => modulus;
   
   bool get valid => privateKey.valid && publicKey.valid;
   
-  int get bytesize => Math.log256(modulus).ceil();
+  int get bytesize => modulus.bitLength() ~/ 8;
   
-  int get bitsize => Math.log2(modulus).ceil();
+  int get bitsize => modulus.bitLength();
   int get size => bitsize;
   
   encrypt(plainText, {Padding padding: PKCS1_PADDING}) {
     if (plainText is String) {
-      plainText = new Uint8List.fromList(plainText.codeUnits);
+      plainText = new Uint8List.fromList(UTF8.encode(plainText));
       return DSC.encode(_encrypt(plainText, padding));
     }
     if (plainText is Uint8List) return _encrypt(plainText, padding);
@@ -149,9 +150,9 @@ class KeyPair {
     return true;
   }
   
-  int _encryptInteger(int plainText) => PKCS1.rsaep(publicKey, plainText);
+  BigInteger _encryptInteger(BigInteger plainText) => PKCS1.rsaep(publicKey, plainText);
   
-  int _decryptInteger(int cipherText) => PKCS1.rsadp(privateKey, cipherText);
+  BigInteger _decryptInteger(BigInteger cipherText) => PKCS1.rsadp(privateKey, cipherText);
   
-  int _signInteger(int plainText) => PKCS1.rsasp1(privateKey, plainText);
+  BigInteger _signInteger(BigInteger plainText) => PKCS1.rsasp1(privateKey, plainText);
 }

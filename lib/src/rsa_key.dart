@@ -5,33 +5,27 @@ import 'dart:math' show Point;
 import 'package:bignum/bignum.dart';
 import 'package:rsa_pkcs/rsa_pkcs.dart' show RSAPublicKey, RSAPrivateKey;
 
-import 'rsa_math.dart' show log256;
-
 class Key {
-  final int modulus;
-  final int exponent;
+  final BigInteger modulus;
+  final BigInteger exponent;
   
   Key(this.modulus, this.exponent);
   
   Key.fromRSAPublicKey(RSAPublicKey pubKey)
-      : modulus = _bigIntToInt(pubKey.modulus),
-        exponent = pubKey.publicExponent;
+      : modulus = pubKey.modulus,
+        exponent = new BigInteger(pubKey.publicExponent);
   
   Key.fromRSAPrivateKey(RSAPrivateKey privKey)
-      : modulus = _bigIntToInt(privKey.modulus),
-        exponent = _bigIntToInt(privKey.privateExponent);
+      : modulus = privKey.modulus,
+        exponent = privKey.privateExponent;
   
-  int get n => modulus;
-  int get e => exponent;
-  int get d => exponent;
+  BigInteger get n => modulus;
+  BigInteger get e => exponent;
+  BigInteger get d => exponent;
   
   bool get valid => true; // TODO: Validity checking
   
-  int get modulusBytesize => log256(modulus).ceil();
+  int get modulusBytesize => modulus.bitLength() ~/ 8;
   
   Point toPoint() => new Point(modulus, exponent);
-  
-  static int _bigIntToInt(BigInteger big) {
-    return int.parse(big.toString());
-  }
 }
