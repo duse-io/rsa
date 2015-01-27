@@ -1,10 +1,12 @@
 name: rsa
 version: 0.0.1
+author: Axel Christ <adracus@gmail.com>
 description: A library providing a simple to use RSA interface
+homepage: https://github.com/Adracus/rsa
 dependencies:
-  asn1lib: ">=0.3.3 <0.4.0"
-  bignum: ">=0.0.6 <0.1.0"
-  rsa_pkcs: ">=0.1.1 <0.2.0"
-  crypto: ">=0.9.0 <0.10.0"
+  asn1lib: '>=0.3.3 <0.4.0'
+  bignum: '>=0.0.6 <0.1.0'
+  crypto: '>=0.9.0 <0.10.0'
+  rsa_pkcs: '>=0.1.1 <0.2.0'
 dev_dependencies:
-  unittest: ">=0.11.4 <0.12.0"
+  unittest: '>=0.11.4 <0.12.0'
