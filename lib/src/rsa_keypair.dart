@@ -1,7 +1,7 @@
 library rsa.keypar;
 
 import 'dart:typed_data' show Uint8List;
-import 'dart:convert' show UTF8;
+import 'dart:convert' show UTF8, LATIN1;
 
 import 'rsa_key.dart';
 import 'rsa_pkcs1.dart' as PKCS1;
@@ -50,7 +50,7 @@ class KeyPair {
   
   encrypt(plainText, {Padding padding: PKCS1_PADDING}) {
     if (plainText is String) {
-      plainText = new Uint8List.fromList(UTF8.encode(plainText));
+      plainText = new Uint8List.fromList(LATIN1.encode(plainText));
       return DSC.encode(_encrypt(plainText, padding));
     }
     if (plainText is Uint8List) return _encrypt(plainText, padding);
