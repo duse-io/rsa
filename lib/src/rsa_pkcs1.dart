@@ -12,7 +12,7 @@ int _bigIntToInt(BigInteger big) {
 }
 
 Uint8List i2osp(BigInteger x, int len) {
-  if (null != len && x >= new BigInteger(pow(256, len)))
+  if (null != len && x >= new BigInteger(256).pow(len))
     throw new ArgumentError("integer too large");
   
   var b;
