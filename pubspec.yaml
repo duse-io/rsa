@@ -5,10 +5,14 @@ description: A library providing a simple to use RSA interface
 homepage: https://github.com/Adracus/rsa
 dependencies:
   asn1lib:
-    git: git://github.com/Adracus/asn1lib.git
+    git:
+      url: git://github.com/Adracus/asn1lib.git
+      ref: 795eeee72b180ff106c8f6f9d48b458b049fc11f
   bignum: '>=0.0.6 <0.1.0'
   crypto: '>=0.9.0 <0.10.0'
   rsa_pkcs:
-    git: git://github.com/Adracus/rsa_pkcs.git
+    git:
+      url: git://github.com/Adracus/rsa_pkcs.git
+      ref: 0d79fea965767a0ab6d78cf75d9101ffe49e66d7
 dev_dependencies:
   unittest: '>=0.11.4 <0.12.0'
