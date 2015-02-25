@@ -1,8 +1,9 @@
 library rsa.padding;
 
 import 'dart:math' show max, Random;
-
 import 'dart:typed_data' show Uint8List;
+
+import 'package:bbs/bbs.dart' show BlumBlumShub;
 
 const PKCS1Padding PKCS1_PADDING = const PKCS1Padding();
 
@@ -43,7 +44,7 @@ class PKCS1Padding implements Padding {
   }
   
   List<int> randomOctets(int length, {Random random}) {
-    if (null == random) random = new Random();
+    if (null == random) random = new BlumBlumShub();
     length = max(8, length);
     var octets = new List.generate(length, (_) => random.nextInt(254) + 1);
     return octets;

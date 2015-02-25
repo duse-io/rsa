@@ -1,5 +1,5 @@
 name: rsa
-version: 0.0.1
+version: 0.0.2
 author: Axel Christ <adracus@gmail.com>
 description: A library providing a simple to use RSA interface
 homepage: https://github.com/Adracus/rsa
@@ -10,6 +10,7 @@ dependencies:
       ref: 795eeee72b180ff106c8f6f9d48b458b049fc11f
   bignum: '>=0.0.6 <0.1.0'
   crypto: '>=0.9.0 <0.10.0'
+  bbs: '>=0.0.1 < 0.1.0'
   rsa_pkcs:
     git:
       url: git://github.com/Adracus/rsa_pkcs.git
